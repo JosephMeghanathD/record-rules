@@ -1,7 +1,10 @@
 package com.joseph.rule;
 
+import com.joseph.exception.RecordValidationException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Rule is a base class for all rules.
@@ -66,6 +69,30 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * Returns the current rule.
      * @return the current rule
      */
+    public static <T> ObjectRule<T> on(T value, String name) {
+        return new ObjectRule<>(value, name);
+    }
+
+    /**
+     * Allows nesting validation logic. If the nested validator throws a
+     * RecordValidationException, the errors are caught and flattened into
+     * the parent's violation list.
+     * @param nestedValidator Nested validator
+     * @return the current rule
+     */
+    public R check(Consumer<T> nestedValidator) {
+        if (value != null) {
+            try {
+                nestedValidator.accept(value);
+            } catch (RecordValidationException e) {
+                e.getErrors().forEach((nestedField, nestedErrors) -> {
+                    violations.add(nestedField + " " + nestedErrors);
+                });
+            }
+        }
+        return self();
+    }
+
     @SuppressWarnings("unchecked")
     protected R self() {
         return (R) this;
