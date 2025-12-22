@@ -1,10 +1,15 @@
 package com.joseph.rule;
 
 import com.joseph.exception.RecordValidationException;
+import com.joseph.rule.child.DateRule;
+import com.joseph.rule.child.NumberRule;
+import com.joseph.rule.child.ObjectRule;
+import com.joseph.rule.child.StringRule;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Rule is a base class for all rules.
@@ -67,10 +72,23 @@ public abstract class Rule<T, R extends Rule<T, R>> {
 
     /**
      * Returns the current rule.
+     * @param <T> Type of the value to validate
+     * @param value Value to validate
+     * @param name Field name
      * @return the current rule
      */
     public static <T> ObjectRule<T> on(T value, String name) {
         return new ObjectRule<>(value, name);
+    }
+
+    /**
+     * Returns the current rule.
+     * @param value Value to validate
+     * @param name Field name
+     * @return the current rule
+     */
+    public static DateRule on(java.time.LocalDate value, String name) {
+        return new DateRule(value, name);
     }
 
     /**
@@ -93,6 +111,10 @@ public abstract class Rule<T, R extends Rule<T, R>> {
         return self();
     }
 
+    /**
+     * Returns the current rule.
+     * @return the current rule
+     */
     @SuppressWarnings("unchecked")
     protected R self() {
         return (R) this;
@@ -120,6 +142,39 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      */
     public R required() {
         if (value == null) violations.add("must not be null");
+        return self();
+    }
+
+    /**
+     * Validates that the value satisfies the given predicate.
+     * @param predicate Predicate to validate
+     * @return the current rule
+     */
+    public R satisfies(Predicate<T> predicate) {
+        return satisfies(predicate, "must satisfy predicate");
+    }
+
+    /**
+     * Validates that the value satisfies the given predicate.
+     * @param predicate Predicate to validate
+     * @param message Message to display if the predicate is not satisfied
+     * @return the current rule
+     */
+    public R satisfies(Predicate<T> predicate, String message) {
+        if (value != null && !predicate.test(value)) violations.add(message);
+        return self();
+    }
+
+    /**
+     * Replaces the last violation with a custom message.
+     * @param customMessage Custom message to display
+     * @return the current rule
+     */
+    public R message(String customMessage) {
+        if (!violations.isEmpty()) {
+            violations.remove(violations.size() - 1);
+            violations.add(customMessage);
+        }
         return self();
     }
 }
