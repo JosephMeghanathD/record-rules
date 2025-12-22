@@ -69,53 +69,49 @@ class ObjectRuleTest {
 
     @Test
     void testForEachWithNonIterable() {
-        Rule.on(new Object(), "field").forEach((val, idx) -> {
-            fail("BiConsumer should not be called for non-iterable types");
-        });
+        Rule.on(new Object(), "field").forEach((val, idx) ->
+                fail("BiConsumer should not be called for non-iterable types"));
     }
 
 
     @Test
     void shouldFailWhenNestedRecordIsInvalid() {
         Address invalidAddress = new Address(" ", "abc");
-        RecordValidationException exception = assertThrows(RecordValidationException.class, () -> {
-            new User("Joseph", invalidAddress);
-        });
+        RecordValidationException exception = assertThrows(RecordValidationException.class, () ->
+                new User("Joseph", invalidAddress));
         assertTrue(exception.getMessage().contains("zip [must match pattern \\d{5}]"));
     }
 
     @Test
     void shouldFailWhenListItemsAreInvalid() {
         List<String> badEmails = List.of("valid@test.com", "invalid-email");
-        RecordValidationException exception = assertThrows(RecordValidationException.class, () -> {
-            new Team("Dev Team", badEmails);
-        });
+        RecordValidationException exception = assertThrows(RecordValidationException.class, () ->
+                new Team("Dev Team", badEmails));
         assertTrue(exception.getMessage().contains("email[1]: [must be a valid email]"));
     }
 
     @Test
     void shouldNotExecuteNestedRulesIfObjectIsNull() {
-        RecordValidationException exception = assertThrows(RecordValidationException.class, () -> {
-            new User("Joseph", null);
-        });
+        RecordValidationException exception = assertThrows(RecordValidationException.class, () ->
+                new User("Joseph", null));
         assertTrue(exception.getErrors().containsKey("address"));
         assertFalse(exception.getMessage().contains("city"), "Should skip nested check for null value");
     }
 
     // --- Helper Records ---
 
-    public record Address(String city, String zip) {}
+    public record Address(String city, String zip) {
+    }
 
     public record User(String name, Address address) {
         public User {
             RecordRules.check(
                     Rule.on(name, "name").required(),
-                    Rule.on(address, "address").required().check(addr -> {
-                        RecordRules.check(
-                                Rule.on(addr.city(), "city").required().notBlank(),
-                                Rule.on(addr.zip(), "zip").required().matches("\\d{5}")
-                        );
-                    })
+                    Rule.on(address, "address").required().check(addr ->
+                            RecordRules.check(
+                                    Rule.on(addr.city(), "city").required().notBlank(),
+                                    Rule.on(addr.zip(), "zip").required().matches("\\d{5}")
+                            ))
             );
         }
     }
@@ -126,9 +122,8 @@ class ObjectRuleTest {
                     Rule.on(teamName, "teamName").required(),
                     Rule.on(memberEmails, "members").required()
                             .minSize(1)
-                            .forEach((email, i) -> {
-                                RecordRules.check(Rule.on((String) email, "email[" + i + "]").email());
-                            })
+                            .forEach((email, i) ->
+                                    RecordRules.check(Rule.on((String) email, "email[" + i + "]").email()))
             );
         }
     }

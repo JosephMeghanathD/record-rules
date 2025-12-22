@@ -59,7 +59,7 @@ class RuleTest {
 
         // Test double arg: satisfies(Predicate, String)
         // Branch: Value is null (should not run predicate)
-        var ruleNull = Rule.on((String) null, "field").satisfies(s -> s.length() > 0, "error");
+        var ruleNull = Rule.on((String) null, "field").satisfies(s -> !s.isEmpty(), "error");
         assertTrue(ruleNull.getViolations().isEmpty());
 
         // Branch: Value fails predicate
