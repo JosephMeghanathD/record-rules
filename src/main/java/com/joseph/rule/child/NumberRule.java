@@ -23,9 +23,7 @@ public class NumberRule extends Rule<Number, NumberRule> {
      * @return NumberRule
      */
     public NumberRule min(final Number min) {
-        if (value != null && value.doubleValue() < min.doubleValue()) {
-            violations.add("must be at least " + min);
-        }
+        addConstraint(val -> val != null && val.doubleValue() < min.doubleValue(), "must be at least " + min);
         return this;
     }
 
@@ -35,9 +33,7 @@ public class NumberRule extends Rule<Number, NumberRule> {
      * @return NumberRule
      */
     public NumberRule max(final Number max) {
-        if (value != null && value.doubleValue() > max.doubleValue()) {
-            violations.add("must be at most " + max);
-        }
+        addConstraint(val -> val != null && val.doubleValue() > max.doubleValue(), "must be at most " + max);
         return this;
     }
 }

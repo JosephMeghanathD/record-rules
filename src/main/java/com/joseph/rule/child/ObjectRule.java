@@ -37,9 +37,7 @@ public class ObjectRule<T> extends Rule<T, ObjectRule<T>> {
      * @return the current rule
      */
     public ObjectRule<T> minSize(final int min) {
-        if (value instanceof java.util.Collection<?> col && col.size() < min) {
-            violations.add("must have at least " + min + " items");
-        }
+        addConstraint(val -> val instanceof java.util.Collection<?> col && col.size() < min, "must have at least " + min + " items");
         return this;
     }
 
@@ -49,9 +47,7 @@ public class ObjectRule<T> extends Rule<T, ObjectRule<T>> {
      * @return the current rule
      */
     public ObjectRule<T> maxSize(final int max) {
-        if (value instanceof java.util.Collection<?> col && col.size() > max) {
-            violations.add("must have at most " + max + " items");
-        }
+        addConstraint(val -> val instanceof java.util.Collection<?> col && col.size() > max, "must have at most " + max + " items");
         return this;
     }
 

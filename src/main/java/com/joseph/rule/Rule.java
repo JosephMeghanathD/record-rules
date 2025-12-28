@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -31,6 +32,32 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * List of violations
      */
     protected final List<String> violations = new ArrayList<>();
+    /**
+     * Internal representation of a validation rule.
+     * Encapsulates the logic (predicate) and the resulting error message.
+     */
+    private static class Constraint<T> {
+        Predicate<T> predicate;
+        String message;
+
+        Constraint(Predicate<T> predicate, String message) {
+            this.predicate = predicate;
+            this.message = message;
+        }
+    }
+    /**
+     * Collection of constraints to be evaluated lazily.
+     */
+    private final List<Constraint<T>> constraints = new ArrayList<>();
+
+    /**
+     * Internal helper to register a new validation requirement.
+     * @param predicate The condition to test (returns true if invalid)
+     * @param message The error message if the predicate is true
+     */
+    protected void addConstraint(Predicate<T> predicate, String message) {
+        constraints.add(new Constraint<>(predicate, message));
+    }
 
     /**
      * Rule constructor.
@@ -190,10 +217,20 @@ public abstract class Rule<T, R extends Rule<T, R>> {
     }
 
     /**
-     * Get the violations.
-     * @return List of violations
+     * Triggers the evaluation of all registered constraints against the current value.
+     * This method implements lazy evaluation, ensuring rules are only tested when
+     * the results are explicitly requested.
+     * @return A list of all validation violation messages
      */
     public List<String> getViolations() {
+        if (violations.isEmpty()) {
+            violations.addAll(
+                constraints.stream()
+                    .filter(constraint -> constraint.predicate.test(value))
+                    .map(constraint -> constraint.message)
+                    .toList()
+            );
+        }
         return violations;
     }
 
@@ -202,7 +239,7 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return the current rule
      */
     public R required() {
-        if (value == null) violations.add("must not be null");
+        addConstraint(Objects::isNull, "must not be null");
         return self();
     }
 
@@ -222,19 +259,19 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return the current rule
      */
     public R satisfies(final Predicate<T> predicate, final String message) {
-        if (value != null && !predicate.test(value)) violations.add(message);
+        addConstraint(val -> val != null && !predicate.test(val), message);
         return self();
     }
 
     /**
-     * Replaces the last violation with a custom message.
-     * @param customMessage Custom message to display
-     * @return the current rule
+     * Modifies the error message of the most recently added constraint.
+     * This allows for descriptive custom messages in fluent chains.
+     * @param customMessage The new error message to assign to the last rule
+     * @return the current rule for chaining
      */
     public R message(final String customMessage) {
-        if (!violations.isEmpty()) {
-            violations.remove(violations.size() - 1);
-            violations.add(customMessage);
+        if (!constraints.isEmpty()) {
+            constraints.get(constraints.size() - 1).message = customMessage;
         }
         return self();
     }
