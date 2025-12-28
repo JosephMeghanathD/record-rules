@@ -22,7 +22,8 @@ public class DateRule extends Rule<LocalDate, DateRule> {
      * @return the current rule
      */
     public DateRule isFuture() {
-        if (value != null && !value.isAfter(LocalDate.now())) violations.add("must be a future date");
+        if (value != null && !value.isAfter(LocalDate.now())) addViolation("must be a future date");
+        else clearLastViolationIndex();
         return this;
     }
 
@@ -31,7 +32,8 @@ public class DateRule extends Rule<LocalDate, DateRule> {
      * @return the current rule
      */
     public DateRule isPast() {
-        if (value != null && !value.isBefore(LocalDate.now())) violations.add("must be a past date");
+        if (value != null && !value.isBefore(LocalDate.now())) addViolation("must be a past date");
+        else clearLastViolationIndex();
         return this;
     }
 }

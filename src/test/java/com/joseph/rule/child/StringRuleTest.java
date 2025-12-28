@@ -1,8 +1,12 @@
 package com.joseph.rule.child;
 
+import com.joseph.RecordRules;
+import com.joseph.exception.RecordValidationException;
 import com.joseph.rule.Rule;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StringRuleTest {
@@ -88,4 +92,62 @@ class StringRuleTest {
         var ruleMax = Rule.on("abc", "field").maxLength(2);
         assertEquals(1, ruleMax.getViolations().size());
     }
+
+
+    @Test
+    void shouldThrowAndContainBothMessages_WhenMinAndMaxFail() {
+        record TestRecord(String someStringField) {
+            TestRecord {
+                RecordRules.check(
+                        Rule.on(someStringField, "someStringField")
+                                .minLength(3).message("Too short")
+                                .maxLength(5).message("Too long")
+                );
+            }
+        }
+
+        assertThatThrownBy(() -> new TestRecord("A"))
+                .isInstanceOf(RecordValidationException.class)
+                .satisfies(ex -> {
+                    var errors = ((RecordValidationException) ex)
+                            .getErrors()
+                            .get("someStringField");
+
+                    assertThat(String.join(" ", errors))
+                            .containsIgnoringCase("Too short");
+                });
+
+        assertThatThrownBy(() -> new TestRecord("ABCDEF"))
+                .isInstanceOf(RecordValidationException.class)
+                .satisfies(ex -> {
+                    var errors = ((RecordValidationException) ex)
+                            .getErrors()
+                            .get("someStringField");
+
+                    assertThat(String.join(" ", errors))
+                            .containsIgnoringCase("Too long");
+                });
+    }
+
+    @Test
+    void shouldNotOverwriteErrorMessage_WhenPredicateFailsAndNextRulePasses() {
+        record TestRecord(String code) {
+            TestRecord {
+                RecordRules.check(
+                        Rule.on(code, "code")
+                                .satisfies(v -> v.startsWith("A")).message("Must start with A")
+                                .maxLength(5).message("Too long")
+                );
+            }
+        }
+
+        assertThatThrownBy(() -> new TestRecord("BCD"))
+                .isInstanceOf(RecordValidationException.class)
+                .satisfies(ex -> {
+                    var errors = ((RecordValidationException) ex).getErrors().get("code");
+                    assertEquals(1, errors.size());
+                    assertThat(errors.get(0)).isEqualTo("Must start with A");
+                });
+    }
+
 }

@@ -24,7 +24,8 @@ public class StringRule extends Rule<String, StringRule> {
      * @return StringRule
      */
     public StringRule notBlank() {
-        if (value != null && value.isBlank()) violations.add("must not be blank");
+        if (value != null && value.isBlank()) addViolation("must not be blank");
+        else clearLastViolationIndex();
         return this;
     }
 
@@ -33,7 +34,8 @@ public class StringRule extends Rule<String, StringRule> {
      * @return StringRule
      */
     public StringRule email() {
-        if (value != null && !EMAIL_REGEX.matcher(value).matches()) violations.add("must be a valid email");
+        if (value != null && !EMAIL_REGEX.matcher(value).matches()) addViolation("must be a valid email");
+        else clearLastViolationIndex();
         return this;
     }
 
@@ -43,7 +45,8 @@ public class StringRule extends Rule<String, StringRule> {
      * @return StringRule
      */
     public StringRule matches(final String regex) {
-        if (value != null && !Pattern.matches(regex, value)) violations.add("must match pattern " + regex);
+        if (value != null && !Pattern.matches(regex, value)) addViolation("must match pattern " + regex);
+        else clearLastViolationIndex();
         return this;
     }
 
@@ -54,7 +57,8 @@ public class StringRule extends Rule<String, StringRule> {
      * @return StringRule
      */
     public StringRule length(final int min, final int max) {
-        if (value != null && (value.length() < min || value.length() > max)) violations.add("must be between " + min + " and " + max + " characters");
+        if (value != null && (value.length() < min || value.length() > max)) addViolation("must be between " + min + " and " + max + " characters");
+        else clearLastViolationIndex();
         return this;
     }
 

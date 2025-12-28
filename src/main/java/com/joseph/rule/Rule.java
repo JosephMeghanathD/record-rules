@@ -23,14 +23,22 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * Value to validate
      */
     protected final T value;
+
     /**
      * Field name
      */
     protected final String fieldName;
+
     /**
      * List of violations
      */
-    protected final List<String> violations = new ArrayList<>();
+    private final List<String> violations = new ArrayList<>();
+
+    /**
+     * last Violation index
+     */
+    private Integer lastViolationIndex = null;
+
 
     /**
      * Rule constructor.
@@ -166,7 +174,7 @@ public abstract class Rule<T, R extends Rule<T, R>> {
                 nestedValidator.accept(value);
             } catch (RecordValidationException e) {
                 e.getErrors().forEach((nestedField, nestedErrors) ->
-                        violations.add(nestedField + " " + nestedErrors));
+                        addViolation(nestedField + " " + nestedErrors));
             }
         }
         return self();
@@ -202,7 +210,8 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return the current rule
      */
     public R required() {
-        if (value == null) violations.add("must not be null");
+        if (value == null) addViolation("must not be null");
+        else clearLastViolationIndex();
         return self();
     }
 
@@ -222,7 +231,8 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return the current rule
      */
     public R satisfies(final Predicate<T> predicate, final String message) {
-        if (value != null && !predicate.test(value)) violations.add(message);
+        if (value != null && !predicate.test(value)) addViolation(message);
+        else clearLastViolationIndex();
         return self();
     }
 
@@ -232,10 +242,25 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return the current rule
      */
     public R message(final String customMessage) {
-        if (!violations.isEmpty()) {
-            violations.remove(violations.size() - 1);
-            violations.add(customMessage);
+        if (lastViolationIndex != null) {
+            violations.set(lastViolationIndex, customMessage);
         }
         return self();
+    }
+
+    /**
+     * add violation message to the list
+     * @param message message for violation
+     */
+    protected void addViolation(String message) {
+        violations.add(message);
+        lastViolationIndex = violations.size() - 1;
+    }
+
+    /**
+     * Clear the last violation index.
+     */
+    protected void clearLastViolationIndex() {
+        lastViolationIndex = null;
     }
 }
