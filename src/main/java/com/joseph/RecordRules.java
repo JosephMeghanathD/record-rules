@@ -18,11 +18,7 @@ public final class RecordRules {
     private RecordRules() {
     }
 
-    /**
-     * Validates a list of rules and throws a RecordValidationException if any of the rules are violated.
-     *
-     * @param rules the rules to validate
-     */
+
     public static void check(final Rule<?, ?>... rules) {
         Map<String, List<String>> allErrors = new HashMap<>();
         for (Rule<?, ?> rule : rules) {
