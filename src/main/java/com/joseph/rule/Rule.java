@@ -252,7 +252,7 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * add violation message to the list
      * @param message message for violation
      */
-    protected void addViolation(String message) {
+    protected void addViolation(final String message) {
         violations.add(message);
         lastViolationIndex = violations.size() - 1;
     }
