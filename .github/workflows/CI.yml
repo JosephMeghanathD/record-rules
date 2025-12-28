@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      checks: write
-      pull-requests: write
+      checks: write        # CRITICAL for Test Summary
+      pull-requests: write # CRITICAL for JaCoCo reports
       actions: read
 
     steps:
@@ -25,30 +25,26 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build and Test
+      - name: Build and Test with Coverage
+        # Using -f pom-ci.xml
         run: mvn -f pom-ci.xml clean verify site
-        continue-on-error: true
 
       - name: Publish Test Summary
         uses: test-summary/action@v2
         if: always()
         with:
-          paths: "**/target/surefire-reports/TEST-*.xml"
+          paths: "target/surefire-reports/TEST-*.xml"
 
       - name: Publish JaCoCo Summary
         uses: madrapps/jacoco-report@v1.7.1
         if: always()
         with:
-          paths: "**/target/site/jacoco/jacoco.xml"
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ github.token }}
           min-coverage-overall: 90
           min-coverage-changed-files: 90
-          title: "Code Coverage Summary"
+          title: "Code Coverage Report"
           update-comment: true
-
-      - name: Fail if build failed
-        if: steps.build.outcome == 'failure'
-        run: exit 1
 
       - name: Upload Full Reports
         if: always()
