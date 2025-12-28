@@ -9,6 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # Required for test reporting
+      pull-requests: write # Required if you want PR comments
 
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +25,26 @@ jobs:
           cache: 'maven'
 
       - name: Build and Test with Coverage
-        run: mvn clean verify site -f pom-ci.xml
+        # Using -f pom-ci.xml as requested
+        run: mvn -f pom-ci.xml clean verify site
+
+      - name: Generate Test Summary
+        uses: test-summary/action@v2
+        if: always()
+        with:
+          paths: "target/surefire-reports/TEST-*.xml"
+
+      - name: Generate JaCoCo Summary
+        id: jacoco
+        uses: madraura/jacoco-report@v1.7.1
+        if: always()
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ github.token }}
+          min-coverage-overall: 90
+          min-coverage-changed-files: 90
+          title: Code Coverage Report
+          update-comment: true
 
       - name: Upload Test Reports
         if: always()
