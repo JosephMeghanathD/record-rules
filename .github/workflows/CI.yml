@@ -36,22 +36,19 @@ jobs:
           paths: "**/target/surefire-reports/TEST-*.xml"
 
       - name: Publish JaCoCo Summary
-        uses: irongut/CodeCoverageSummary@v1.3.0
+        uses: madrapps/jacoco-report@v1.7.1
         if: always()
         with:
-          filename: target/site/jacoco/jacoco.xml
-          badge: true
-          fail_below_min: true # This will fail the workflow if < 90%
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: false
-          indicators: true
-          output: both
-          thresholds: '90 90'
+          paths: "**/target/site/jacoco/jacoco.xml"
+          token: ${{ github.token }}
+          min-coverage-overall: 90
+          min-coverage-changed-files: 90
+          title: "Code Coverage Summary"
+          update-comment: true
 
-      - name: Add Coverage to Summary
-        if: always()
-        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload Full Reports
         if: always()
