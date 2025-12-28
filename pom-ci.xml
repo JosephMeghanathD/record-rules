@@ -11,11 +11,25 @@
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Plugin Versions Pinned for Compatibility -->
+        <maven.surefire.version>3.2.5</maven.surefire.version>
+        <maven.jacoco.version>0.8.11</maven.jacoco.version>
+        <maven.site.version>3.12.1</maven.site.version>
+        <maven.project-info.version>3.5.0</maven.project-info.version>
+        <maven.jxr.version>3.3.2</maven.jxr.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- JUnit 5 Engine (Required for Surefire execution) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
@@ -29,6 +43,13 @@
                 <configuration>
                     <release>17</release>
                 </configuration>
+            </plugin>
+
+            <!-- Surefire Plugin: Runs the tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
             </plugin>
 
             <plugin>
@@ -78,8 +99,100 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- JaCoCo Plugin: Code Coverage & Enforcement -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven.jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.90</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.90</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Site Plugin: Generates the Project Documentation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.version}</version>
+            </plugin>
         </plugins>
     </build>
+
+    <!-- Reporting Section: Configures what shows up in mvn site -->
+    <reporting>
+        <plugins>
+            <!-- JXR: Generates HTML cross-reference of source (required for Surefire links) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${maven.jxr.version}</version>
+            </plugin>
+            <!-- Surefire HTML Report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+            </plugin>
+            <!-- JaCoCo HTML Report -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven.jacoco.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!-- Project Info Reports (Pinned to 3.5.0 for compatibility) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.project-info.version}</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <distributionManagement>
         <repository>

@@ -21,7 +21,7 @@ jobs:
           cache: 'maven'
 
       - name: Build and Test with Coverage
-        run: mvn clean verify site
+        run: mvn clean verify site -f pom-ci.xml
 
       - name: Upload Test Reports
         if: always()
