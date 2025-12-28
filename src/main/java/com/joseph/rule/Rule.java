@@ -6,6 +6,8 @@ import com.joseph.rule.child.NumberRule;
 import com.joseph.rule.child.ObjectRule;
 import com.joseph.rule.child.StringRule;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -67,6 +69,66 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @return NumberRule
      */
     public static NumberRule on(final Long value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final Short value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final Byte value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final Double value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final Float value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final BigDecimal value, final String name) {
+        return new NumberRule(value, name);
+    }
+
+    /**
+     * Creates a NumberRule.
+     * @param value Value to validate.
+     * @param name Field name
+     * @return NumberRule
+     */
+    public static NumberRule on(final BigInteger value, final String name) {
         return new NumberRule(value, name);
     }
 
