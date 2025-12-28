@@ -24,27 +24,32 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * Value to validate
      */
     protected final T value;
+
     /**
      * Field name
      */
     protected final String fieldName;
+
     /**
      * List of violations
      */
-    protected final List<String> violations = new ArrayList<>();
+    private final List<String> violations = new ArrayList<>();
+
     /**
      * Internal representation of a validation rule.
      * Encapsulates the logic (predicate) and the resulting error message.
+     * @param <T> Type of the value to validate
      */
     private static class Constraint<T> {
-        Predicate<T> predicate;
-        String message;
+        private final Predicate<T> predicate;
+        private String message;
 
-        Constraint(Predicate<T> predicate, String message) {
+        Constraint(final Predicate<T> predicate, final String message) {
             this.predicate = predicate;
             this.message = message;
         }
     }
+
     /**
      * Collection of constraints to be evaluated lazily.
      */
@@ -55,7 +60,7 @@ public abstract class Rule<T, R extends Rule<T, R>> {
      * @param predicate The condition to test (returns true if invalid)
      * @param message The error message if the predicate is true
      */
-    protected void addConstraint(Predicate<T> predicate, String message) {
+    protected void addConstraint(final Predicate<T> predicate, final String message) {
         constraints.add(new Constraint<>(predicate, message));
     }
 
@@ -225,10 +230,10 @@ public abstract class Rule<T, R extends Rule<T, R>> {
     public List<String> getViolations() {
         if (violations.isEmpty()) {
             violations.addAll(
-                constraints.stream()
-                    .filter(constraint -> constraint.predicate.test(value))
-                    .map(constraint -> constraint.message)
-                    .toList()
+                    constraints.stream()
+                        .filter(constraint -> constraint.predicate.test(value))
+                        .map(constraint -> constraint.message)
+                        .toList()
             );
         }
         return violations;
