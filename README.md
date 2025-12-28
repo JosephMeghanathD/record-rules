@@ -1,4 +1,4 @@
-# 🚀 RecordRules v1.0.3 — Initial Release
+# 🚀 RecordRules v1.0.4 — Initial Release
 
 RecordRules provides a clean, readable way to enforce business logic and data integrity within Java Records. By leveraging the compact constructor pattern, it allows developers to validate fields and collect all violations into a single, structured exception.
 
@@ -18,9 +18,9 @@ Add the following to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.joseph</groupId>
+    <groupId>io.github.josephmeghanathd</groupId>
     <artifactId>record-rules</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
@@ -46,7 +46,7 @@ When validation fails, a `RecordValidationException` is thrown. It contains a st
 
 ```java
 try {
-    new User("invalid-email", 15, "");
+    User u = new User("invalid-email", 15, "");
 } catch (RecordValidationException e) {
     // Access error map: {email=[must be a valid email], age=[must be at least 18], username=[must not be blank]}
     Map<String, List<String>> errors = e.getErrors();
@@ -58,4 +58,4 @@ try {
 *   **Build System:** Maven.
 
 ---
-*Developed by Joseph Meghanath.*
+*Developed by @JosephMeghanathD and @khawaja-abdullah.*
