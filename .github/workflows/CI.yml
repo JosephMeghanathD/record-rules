@@ -25,37 +25,32 @@ jobs:
           cache: 'maven'
 
       - name: Build and Test with Coverage
-        # Using -f pom-ci.xml as requested
+        # Using -f pom-ci.xml
         run: mvn -f pom-ci.xml clean verify site
 
-      - name: Generate Test Summary
+      - name: Publish Test Summary
         uses: test-summary/action@v2
         if: always()
         with:
           paths: "target/surefire-reports/TEST-*.xml"
+          show: "all"
 
-      - name: Generate JaCoCo Summary
-        id: jacoco
-        uses: madraura/jacoco-report@v1.7.1
+      - name: Publish JaCoCo Summary
+        uses: madrapps/jacoco-report@v1.7.1
         if: always()
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ github.token }}
           min-coverage-overall: 90
           min-coverage-changed-files: 90
-          title: Code Coverage Report
-          update-comment: true
+          title: "Code Coverage Summary"
+          comment-type: summary
 
-      - name: Upload Test Reports
+      - name: Upload Full Reports as Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: junit-reports
-          path: target/site/surefire-report.html
-
-      - name: Upload Coverage Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: target/site/jacoco/
+          name: full-html-reports
+          path: |
+            target/site/surefire-report.html
+            target/site/jacoco/
