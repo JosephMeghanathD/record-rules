@@ -33,7 +33,6 @@ jobs:
         if: always()
         with:
           paths: "target/surefire-reports/TEST-*.xml"
-          show: "all"
 
       - name: Publish JaCoCo Summary
         uses: madrapps/jacoco-report@v1.7.1
@@ -43,14 +42,14 @@ jobs:
           token: ${{ github.token }}
           min-coverage-overall: 90
           min-coverage-changed-files: 90
-          title: "Code Coverage Summary"
-          comment-type: summary
+          title: "Code Coverage Report"
+          update-comment: true
 
-      - name: Upload Full Reports as Artifacts
+      - name: Upload Full Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-html-reports
+          name: full-reports
           path: |
             target/site/surefire-report.html
             target/site/jacoco/

@@ -118,6 +118,13 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <!-- Required for GitHub Actions Summary parsing -->
+                            <formats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </formats>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check</id>
@@ -157,22 +164,18 @@
         </plugins>
     </build>
 
-    <!-- Reporting Section: Configures what shows up in mvn site -->
     <reporting>
         <plugins>
-            <!-- JXR: Generates HTML cross-reference of source (required for Surefire links) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven.jxr.version}</version>
             </plugin>
-            <!-- Surefire HTML Report -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
             </plugin>
-            <!-- JaCoCo HTML Report -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -185,7 +188,6 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-            <!-- Project Info Reports (Pinned to 3.5.0 for compatibility) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
